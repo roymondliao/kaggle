@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
-from scipy import stats
 import lightgbm as lgb
+import gc
+from scipy import stats
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 
