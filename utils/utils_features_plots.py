@@ -4,6 +4,8 @@ import pandas as pd
 import seaborn as sns
 import gc
 from sklearn.preprocessing import LabelEncoder
+from collections import Counter
+import traceback
 
 def plot_confusion_matrix(cm, classes,
                           normalize=False,
@@ -55,16 +57,23 @@ def plot_feature_distribution(df1, df2, label1, label2, features, bins=10, color
     i = 0
     for feature in features:
         i += 1
-        df1_tmp = df1[feature][~df1[feature].isna()]
-        df2_tmp = df2[feature][~df2[feature].isna()]
-        if df1[feature].dtype == 'O':
-            enc = LabelEncoder()
-            enc.fit(df1_tmp.astype(str))
-            df1_tmp = enc.transform(df1_tmp)
-            df2_tmp = enc.transform(df2_tmp)
-        plt.subplot(rows, cols + 1, i)        
-        sns.distplot(df1_tmp, label=label1, kde=True, rug=False, hist=True, bins=bins, color=color1) 
-        sns.distplot(df2_tmp, label=label2, kde=True, rug=False, hist=True, bins=bins, color=color2) 
+        try:
+            df1_tmp = df1[feature][~df1[feature].isna()]
+            df2_tmp = df2[feature][~df2[feature].isna()]
+            if df1[feature].dtype == 'O':
+                enc = LabelEncoder()
+                enc.fit(df1_tmp.astype(str))
+                df1_tmp = enc.transform(df1_tmp)
+                df2_tmp = enc.transform(df2_tmp)
+            plt.subplot(rows, cols + 1, i)       
+            if len(Counter(df1_tmp)) == 1 or len(Counter(df2_tmp)) == 1:
+                kde = False
+            else:
+                kde = True
+            sns.distplot(df1_tmp, label=label1, kde=kde, rug=False, hist=True, bins=bins, color=color1) 
+            sns.distplot(df2_tmp, label=label2, kde=kde, rug=False, hist=True, bins=bins, color=color2) 
+        except Exception as e:
+            print('{}: {} - {}'.format(feature, e, traceback.format_exc()))
         plt.xlabel(feature, fontsize=9)    
         plt.legend(labels=[label1, label2])
         locs, labels = plt.xticks()        
@@ -73,6 +82,7 @@ def plot_feature_distribution(df1, df2, label1, label2, features, bins=10, color
         plt.subplots_adjust(hspace=0.25, top=0.85, wspace=0.35)
         plt.xticks(rotation=45, fontsize=8)
         plt.yticks(fontsize=8)
+    plt.tight_layout()
     plt.show()
     del df1, df2
     gc.collect()
@@ -95,7 +105,7 @@ def plot_feature_distribution_old(df1, df2, label1, label2, features):
         df2_tmp = df2[feature][~df2[feature].isna()]
         if df1[feature].dtype == 'O':
             enc = LabelEncoder()
-            enc.fit(df1_tmp.astype(str))
+            enc.fit(np.concatenate([df1_tmp, df2_tmp], axis=0).astype(str))
             df1_tmp = enc.transform(df1_tmp)
             df2_tmp = enc.transform(df2_tmp)
         if n_features == 1:
@@ -130,19 +140,27 @@ def plot_feature_distribution_w_target(data, neg, pos, features, label1, label2,
     i = 0    
     for f in features:
         i += 1
-        neg_tmp = data[neg][f][~data[neg][f].isna()]
-        pos_tmp = data[pos][f][~data[pos][f].isna()]
-        if data[f].dtype == 'O':
-            enc = LabelEncoder()
-            enc.fit(data[f].astype('str'))
-            neg_tmp = enc.transform(neg_tmp)
-            pos_tmp = enc.transform(pos_tmp)   
-        plt.subplot(rows, cols, i)        
-        sns.distplot(neg_tmp, label=label1, kde=True, rug=False, hist=True, bins=bins, color=color1) 
-        sns.distplot(pos_tmp, label=label2, kde=True, rug=False, hist=True, bins=bins, color=color2) 
+        try:
+            neg_tmp = data[neg][f][~data[neg][f].isna()]
+            pos_tmp = data[pos][f][~data[pos][f].isna()]
+            if data[f].dtype == 'O':
+                enc = LabelEncoder()
+                enc.fit(data[f].astype('str'))
+                neg_tmp = enc.transform(neg_tmp)
+                pos_tmp = enc.transform(pos_tmp)   
+            plt.subplot(rows, cols, i)        
+            if len(Counter(neg_tmp)) == 1 or len(Counter(pos_tmp))  == 1:
+                kde = False
+            else:
+                kde = True
+            sns.distplot(neg_tmp, label=label1, kde=kde, rug=False, hist=True, bins=bins, color=color1) 
+            sns.distplot(pos_tmp, label=label2, kde=kde, rug=False, hist=True, bins=bins, color=color2)
+        except Exception as e:
+            print('{}: {} - {}'.format(feature, e, traceback.format_exc()))
         plt.xlabel(f, fontsize=9)    
         plt.legend(labels=[label1, label2])
     plt.tight_layout()     
+    plt.subplots_adjust(hspace = 0.6, top = 0.85)
     plt.show()
     del neg_tmp, pos_tmp
     

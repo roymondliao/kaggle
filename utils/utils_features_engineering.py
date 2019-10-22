@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import gc
 
 def do_count(data, group_cols, target_col, new_col_name, col_type):
     print('[INFO] Count {} with group by {} combination...'.format(target_col, '-'.join(group_cols)))
@@ -100,7 +101,10 @@ def do_min(data, group_cols, target_col, new_col_name, col_type):
     return data
 
 def mean_encoding(data_x, data_y, feature, target):
-    data = pd.concat([data_x, data_y], axis=1)
+    if target in data_x.columns:
+        data = data_x
+    else:
+        data = pd.concat([data_x, data_y], axis=1)
     prior_mean = np.mean(data[target].values)
     enc_value = data.groupby(feature)[target].mean()
     if isinstance(feature, list):
@@ -112,7 +116,10 @@ def mean_encoding(data_x, data_y, feature, target):
     return data_x, enc_value, prior_mean, feature_name
 
 def smooth_mean_encoding(data_x, data_y, feature, target, min_samples=1, smooth_method='stats_smooth'):
-    data = pd.concat([data_x, data_y], axis=1)
+    if target in data_x.columns:
+        data = data_x
+    else:
+        data = pd.concat([data_x, data_y], axis=1)
     nrows = data.groupby(feature)[target].count()
     target_mean = data.groupby(feature)[target].mean()
     prior_mean = np.mean(data[target].values)    

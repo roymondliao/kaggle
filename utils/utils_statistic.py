@@ -5,6 +5,7 @@ import gc
 from scipy import stats
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
 
 def resumetable(df):
     print("Dataset Shape: {}".format(df.shape))
