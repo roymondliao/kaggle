@@ -160,10 +160,24 @@ V columns --> 15 個 groups 使用 PCA or KNN features
         2. There is a gap period between train and test-public Recognized as the same user even if D3 etc. don't fit due to the gap period
         
 #### Feature Engineering 
+1. [Recursive feature elimination](https://www.kaggle.com/nroman/recursive-feature-elimination)
 
 
 #### Feature Selection
-
-
-
+1.Chris feature selection method: train each feature on the first month and predict the last month, if the auc < 0.5. ([kernel](https://www.kaggle.com/cdeotte/xgb-fraud-with-magic-0-9600))
+    * All of these features where chosen because each increases local validation. The procedure for engineering features is as follows. First you think of an idea and create a new feature. Then you add it to your model and evaluate whether local validation AUC increases or decreases. If AUC increases keep the feature, otherwise discard the feature.
+2.[Permutation importance](https://www.kaggle.com/c/ieee-fraud-detection/discussion/107877#latest-635386)
+```{python}
+def permutation_importance(X, y, model): 
+    perm = {}
+    y_true = model.predict_proba(X)[:,1]
+    baseline= roc_auc_score(y, y_true)
+    for cols in X.columns:
+        value = X[cols]
+        X[cols] = np.random.permutation(X[cols].values)
+        y_true = model.predict_proba(X)[:,1]
+        perm[cols] = roc_auc_score(y, y_true) - baseline
+        X[cols] = value
+    return perm
+```    
 
