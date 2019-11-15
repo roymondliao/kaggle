@@ -18,7 +18,6 @@ The data comes from Vesta's real-world e-commerce transactions and contains a wi
     * associated email address
     * transcation directly
 3. D1 is "days since client (credit card) began"   
-    
 
 **Categorical Features - Transaction**
 
@@ -180,4 +179,7 @@ def permutation_importance(X, y, model):
         X[cols] = value
     return perm
 ```    
+
+## Reference
+1. https://takaishikawa42.hatenablog.com/entry/2019/10/07/065007
 
