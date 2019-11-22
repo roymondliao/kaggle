@@ -45,7 +45,8 @@ We were believing that it was the most stable option to predict future and unkno
 
 The D Columns are **"time deltas"** from some point in the past. We will transform the D Columns into their point in the past. This will stop the D columns from increasing with time. The formula is `D15n = Transaction_Day - D15 and Transaction_Day = TransactionDT/(24*60*60)`. And then we will take the negative of this number.
 
-* seq2dec
+* seq2dec:
+   https://www.kaggle.com/c/ieee-fraud-detection/discussion/111485
     
 #### Features selection:
 
